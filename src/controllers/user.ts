@@ -1,6 +1,6 @@
 import { Context } from "hono";
 import { HTTPException } from "hono/http-exception";
-import { RegisterRequestDto } from "../model/dto/user/resgiter";
+import { RegisterRequestDto } from "../model/dto/user/register";
 import { PrismaClient, User } from "@prisma/client";
 
 const prismaClient = new PrismaClient();
