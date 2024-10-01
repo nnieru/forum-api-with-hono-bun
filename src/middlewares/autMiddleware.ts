@@ -4,7 +4,6 @@ import { verify } from "hono/jwt";
 export const authMiddleware = createMiddleware(async (c, next) => {
   const authHeader = c.req.header("Authorization");
 
-  // Return error if Authorization header is missing
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
     return c.json(
       { code: 401, message: "Authorization header missing or malformed" },
@@ -21,7 +20,7 @@ export const authMiddleware = createMiddleware(async (c, next) => {
     if (payload.exp && payload.exp < currentTime) {
       return c.json({ code: 401, message: "Token expired" }, 401);
     }
-
+    c.set("user", payload.email);
     await next();
   } catch (error) {
     return c.json({ code: 401, message: "Unauthorized" }, 401);
