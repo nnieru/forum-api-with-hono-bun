@@ -74,9 +74,6 @@ export default {
       user.password
     );
 
-    console.log(body.password ?? "");
-    console.log(user.password);
-
     if (!passwordMatch) {
       throw new HTTPException(401, {
         message: "Unauthorized",
