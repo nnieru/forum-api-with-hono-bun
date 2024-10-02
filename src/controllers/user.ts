@@ -82,6 +82,7 @@ export default {
     }
     const exp = Date.now() + 1000 * 60 * 60; // 1 h
     const payload = {
+      id: user.id,
       email: user.email,
       username: user.username,
       exp: exp, // 1 hour
