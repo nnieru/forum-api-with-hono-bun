@@ -3,6 +3,10 @@ import { Context } from "hono";
 import { HTTPException } from "hono/http-exception";
 import { BaseResponse } from "../model/dto/BaseResponse.model";
 import { RetrieveAllPostResponseDto } from "../model/dto/post/retrieveAllPostResponseDto";
+import {
+  CommentDto,
+  getAllCommentResponseDto,
+} from "../model/dto/post/getAllCommentResponse";
 
 const prisma = new PrismaClient();
 export default {
@@ -116,5 +120,75 @@ export default {
       message: "Comment added successfully",
     };
     return c.json(response, 201);
+  },
+  getAllComment: async (c: Context) => {
+    const post_id = c.req.param("id");
+
+    const post = await prisma.post.findUnique({
+      where: {
+        id: post_id,
+      },
+      include: {
+        user: true,
+        _count: {
+          select: {
+            comments: true,
+          },
+        },
+      },
+    });
+
+    if (post == null) {
+      throw new HTTPException(404, {
+        message: "Not Found",
+        cause: "Post not found",
+      });
+    }
+
+    const comments = await prisma.comment.findMany({
+      where: {
+        postId: post_id,
+      },
+      include: {
+        user: true,
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+
+    const mappedComment: CommentDto[] = comments.map((comment) => {
+      return {
+        id: comment.id,
+        content: comment.content,
+        createdAt: comment.createdAt,
+        user: {
+          id: comment.user.id,
+          username: comment.user.username,
+        },
+      };
+    });
+
+    const response: BaseResponse<getAllCommentResponseDto> = {
+      code: 200,
+      data: {
+        post: {
+          id: post.id,
+          title: post.title,
+          content: post.content ?? "",
+          createdAt: post.createdAt,
+          user: {
+            id: post.user.id,
+            firstName: post.user.firstName,
+            lastName: post.user.lastName ?? "",
+            username: post.user.username,
+          },
+          commentsCount: post._count.comments,
+        },
+        comments: mappedComment,
+      },
+    };
+
+    return c.json(response, 200);
   },
 };
