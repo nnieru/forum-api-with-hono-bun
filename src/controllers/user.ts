@@ -5,8 +5,7 @@ import { PrismaClient, User } from "@prisma/client";
 import { sign } from "hono/jwt";
 import { BaseResponse } from "../model/dto/BaseResponse.model";
 import { SignInRequestDto, SignInResponseDto } from "../model/dto/user/signin";
-
-const prismaClient = new PrismaClient();
+import prisma from "../db/db";
 
 export default {
   register: async (c: Context) => {
@@ -22,7 +21,7 @@ export default {
 
       const encryptedPassword = await Bun.password.hash(body.password);
 
-      const user = await prismaClient.user.create({
+      const user = await prisma.user.create({
         data: {
           firstName: body.firstName,
           lastName: body.lastName ?? "",
@@ -54,7 +53,7 @@ export default {
   signIn: async (c: Context) => {
     const body: SignInRequestDto = await c.req.json();
 
-    const user = await prismaClient.user.findFirst({
+    const user = await prisma.user.findFirst({
       where: {
         email: {
           equals: body.email,

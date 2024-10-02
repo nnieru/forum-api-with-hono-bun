@@ -7,8 +7,8 @@ import {
   CommentDto,
   getAllCommentResponseDto,
 } from "../model/dto/post/getAllCommentResponse";
+import prisma from "../db/db";
 
-const prisma = new PrismaClient();
 export default {
   createNewPost: async (c: Context) => {
     const body = await c.req.json();

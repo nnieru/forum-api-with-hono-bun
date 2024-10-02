@@ -7,11 +7,6 @@ import post from "../controllers/post";
 
 export const postApp = new Hono();
 
-postApp.get("/", async (c: Context) => {
-  const user = c.get("email");
-  return c.json({ message: `hello ${user}` });
-});
-
 postApp.post(
   "/create",
   zValidator("json", CreatePostRequestDtoSchema),
