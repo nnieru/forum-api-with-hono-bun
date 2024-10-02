@@ -5,6 +5,7 @@ export interface RetrieveAllPostResponseDto {
   title: string;
   content: string;
   createdAt: Date;
+  commentsCount: number;
   user: UserPostDto;
 }
 

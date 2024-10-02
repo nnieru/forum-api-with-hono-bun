@@ -42,11 +42,17 @@ export default {
     const posts = await prisma.post.findMany({
       skip: pageNumber == 1 ? 0 : offset,
       take: limitNumber,
+
       orderBy: {
         createdAt: "desc",
       },
       include: {
         user: true,
+        _count: {
+          select: {
+            comments: true,
+          },
+        },
       },
     });
 
@@ -56,6 +62,7 @@ export default {
         title: post.title,
         content: post.content ?? "",
         createdAt: post.createdAt,
+        commentsCount: post._count.comments,
         user: {
           id: post.user.id,
           firstName: post.user.firstName,
@@ -71,5 +78,43 @@ export default {
     };
 
     return c.json(response, 200);
+  },
+  addNewComment: async (c: Context) => {
+    const body = await c.req.json();
+    const userId = c.get("id");
+
+    if (userId == null) {
+      throw new HTTPException(400, {
+        message: "Bad Request",
+        cause: "User Id not found",
+      });
+    }
+
+    const post = await prisma.post.findUnique({
+      where: {
+        id: body.postId,
+      },
+    });
+
+    if (post == null) {
+      throw new HTTPException(404, {
+        message: "Not Found",
+        cause: "Post not found",
+      });
+    }
+
+    await prisma.comment.create({
+      data: {
+        content: body.content,
+        postId: body.postId,
+        userId: userId,
+      },
+    });
+
+    const response: BaseResponse<any> = {
+      code: 201,
+      message: "Comment added successfully",
+    };
+    return c.json(response, 201);
   },
 };
