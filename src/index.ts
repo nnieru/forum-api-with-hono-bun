@@ -13,6 +13,7 @@ const app = new Hono().basePath("/api");
 app.use(logger());
 app.use(prettyJSON());
 app.use("/post/*", authMiddleware);
+app.use("/user/profile/*", authMiddleware);
 
 // routing
 app.route("/user", userApp);
