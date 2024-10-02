@@ -34,7 +34,14 @@ export default {
     return c.json(response, 201);
   },
   getAllPosts: async (c: Context) => {
+    const { page, limit } = c.req.query();
+    const pageNumber = parseInt(page);
+    const limitNumber = parseInt(limit);
+
+    const offset = (pageNumber - 1) * limitNumber;
     const posts = await prisma.post.findMany({
+      skip: pageNumber == 1 ? 0 : offset,
+      take: limitNumber,
       orderBy: {
         createdAt: "desc",
       },
